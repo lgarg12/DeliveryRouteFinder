@@ -12,9 +12,23 @@ class Node{
 
 
 int main(){
-    //warehouse 1
-    //house 2
-    //petrol 3
+    //warehouse 2
+    //house 0
+    //petrol 1
+    
+    //Houses..
+    int property[50] = {0};
+    //Warehouse..
+    property[1] = 2;
+    property[48] = 2;
+    property[29] = 2;
+    property[36] = 2;
+    //Petrol Pump..
+    property[25] = 1;
+    property[17] = 1;
+    property[27] = 1;
+    property[38] = 1;
+
     vector<pair<int,int>> adj[50];
     adj[0] = {{22,73},{43,80},{44,72}};
     adj[1] = {{2,2},{3,1},{42,8},{7,5},{44,6},{43,7},{9,4}};
