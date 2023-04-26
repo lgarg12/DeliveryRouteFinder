@@ -45,3 +45,8 @@ In our project, we focus on minimizing distribution centers(Warehouses) and redu
         Dijkstra Algorithm : Time Complexity: O(E* logV), Auxiliary Space: O(V)
         Bellman Ford Algorithm : Time Complexity:  O(V*E), Auxiliary Space: O(E)
         Floyd Warshall Algorithm : Time Complexity: O(V3), Auxiliary Space: O(V2)
+        0/1 knapsack using dynamic programming.
+        
+        
+* Assumptions 
+1. we are assuming that after a van reaches it's tank capacity then it can go to any gas station without any refill.
