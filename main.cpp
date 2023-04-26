@@ -1,23 +1,96 @@
 #include<iostream>
 #include<vector>
+#include<algorithm>
+#include<map>
 using namespace std;
-class Node{
-    int data;
-    int type;
-    Node(int data,int type){
-        this->data = data;
-        this->type = type;
+
+//Number of vertex or Id address in the map
+int V=50;
+
+//Getting Distance between every pair of vertex.....
+//Phase First Done
+vector<vector<int>> floywarshall(int V,vector<pair<int,int>> adj[]){
+    vector<vector<int>> dist(V,vector<int>(V,1e7));
+    for(int i=0;i<V;i++){
+        for(auto adjNode:adj[i]){
+            dist[i][adjNode.first] = adjNode.second;
+        }
     }
-};
+    for(int i=0;i<V;i++){
+        for(int j=0;j<V;j++){
+            if(i==j){
+                dist[i][j]=0;
+            }
+        }
+    }
+ for (int k = 0; k < V; k++) {
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (dist[i][j] > (dist[i][k] + dist[k][j])
+                    && (dist[k][j] != 1e7
+                        && dist[i][k] != 1e7))
+                    dist[i][j] = dist[i][k] + dist[k][j];
+            }
+        }
+    }
+    
+    // for(int i=0;i<V;i++){
+    //     for(int j=0;j<V;j++){
+    //         cout<<dist[i][j]<<" ";
+    //     }
+    //     cout<<endl;
+    // }
+    return dist;
+} 
 
+//Phase second
+//optimize package of truck from given list of order
+//Assume all packages will delivered 
+//we are optimizing for first Go of truck..
+vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacity){
+    vector<pair<int,int>> finalListOfItems;
+    //First integer Represent wt of Item and second integer represent ID of that item...
+    sort(List.begin(),List.end());
+    //Sort the Given List according to their wt of items
+    //since we are assuming that each and every package will be deliver in one Go
+    //Push the smallest wt Element first according to capacity of truck
+    int i=0;
+    while(capacity>=0 && i < List.size()){
+        capacity-=List[i].first;
+        finalListOfItems.push_back(List[i]);
+    }
+    if(capacity<0){
+        finalListOfItems.pop_back();
+    }
+    // for(int i=0;i<finalListOfItems.size();i++){
+    //     cout<<finalListOfItems[i].first<<" "<<finalListOfItems[i].second<<endl;
+    // }
+    return finalListOfItems;
+}
+void wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
+    vector<vector<int>> dist = floywarshall(V,adj);
+    vector<pair<int,int>> warehouseTohouses;
+    //integer first will be warehouse and integer second will be house
+    // for(int i=0;i<wareHouses.size();i++) {
+    //     cout<<wareHouses[i]<<" ";
+    // }
+    // cout<<endl;
 
+    for(int i=0;i<wareHouses.size();i++){
+        for(int j=0;j<List.size();j++){
+            warehouseTohouses.push_back({wareHouses[i],dist[wareHouses[0]][List[j].second]});
+       }
+    }
+    
+    
+}
 int main(){
     //warehouse 2
     //house 0
     //petrol 1
-    
+    //Number of vertex
     //Houses..
-    int property[50] = {0};
+    int property[V] = {0};
     //Warehouse..
     property[1] = 2;
     property[48] = 2;
@@ -29,7 +102,14 @@ int main(){
     property[27] = 1;
     property[38] = 1;
 
-    vector<pair<int,int>> adj[50];
+    //wareHouseIndex
+    vector<int> wareHouses{1,48,29,36};
+
+    //PetrolPump
+    vector<int> GasStation{25,17,27,38};
+
+
+    vector<pair<int,int>> adj[V];
     adj[0] = {{22,73},{43,80},{44,72}};
     adj[1] = {{2,2},{3,1},{42,8},{7,5},{44,6},{43,7},{9,4}};
     adj[2] = {{2,2},{5,9},{10,3},{8,14},{9,13}};
@@ -80,6 +160,13 @@ int main(){
     adj[47] = {{46,68},{48,83},{49,67}};
     adj[48] = {{43,82},{46,70},{47,83},{49,84},{45,66},{42,85}};
     adj[49] = {{47,67},{48,84},{45,65}};
+    
+    
+    // floywarshall(V,adj);
+    // int capacity = 269;
+    vector<pair<int,int>> List = {{95,4},{4,35},{60,31},{32,5},{23,19},{72,45},{80,32},{62,29},{65,17},{49,2}};
+    // SystematicPackaging(List,capacity);
+    wareHouseSelection(List,adj,wareHouses);
 
     return 0;
 }
