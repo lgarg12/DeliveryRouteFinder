@@ -2,6 +2,7 @@
 #include<vector>
 #include<algorithm>
 #include<map>
+#include<set>
 using namespace std;
 
 //Number of vertex or Id address in the map
@@ -9,7 +10,7 @@ int V=50;
 
 //Getting Distance between every pair of vertex.....
 //Phase First Done
-vector<vector<int>> floywarshall(int V,vector<pair<int,int>> adj[]){
+vector<vector<int>> floydwarshall(int V,vector<pair<int,int>> adj[]){
     vector<vector<int>> dist(V,vector<int>(V,1e7));
     for(int i=0;i<V;i++){
         for(auto adjNode:adj[i]){
@@ -67,8 +68,9 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     // }
     return finalListOfItems;
 }
-void wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
-    vector<vector<int>> dist = floywarshall(V,adj);
+
+int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
+    vector<vector<int>> dist = floydwarshall(V,adj);
     vector<pair<int,int>> warehouseTohouses;
     //integer first will be warehouse and integer second will be house
     // for(int i=0;i<wareHouses.size();i++) {
@@ -84,6 +86,48 @@ void wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],v
     
     
 }
+
+vector<int> Dijkstra(int src, vector<pair<int,int>> adj[]){
+    set<pair<int,int>> pq;
+    vector<int> dist(V,1e7), parent(V);
+    for(int i=0;i<V;i++){
+        parent[i] = i;
+    }    
+    dist[src] = 0;
+    pq.insert({0,src});
+    while(!pq.empty()){
+        auto it = *(pq.begin());
+        int dis = it.first;
+        int node = it.second;
+        pq.erase(it);
+
+        for(auto i:adj[node]){
+            int edgewt = i.second;
+            int adjNode = i.first;
+
+            if(dis + edgewt < dist[adjNode]){
+                if(dist[adjNode] != 1e7)
+                    pq.erase({dist[adjNode],adjNode});
+                
+                dist[adjNode] = (dis + edgewt);
+                pq.insert({dist[adjNode],adjNode});
+                parent[adjNode] = node;
+            }
+        }
+    }
+    if(dist[V-1] == 1e7)
+        return {-1};
+    vector<int> path;
+    int node = V-1;
+    while(parent[node] != node){
+        path.push_back(node);
+        node = parent[node];
+    }
+    path.push_back(src);
+    reverse(path.begin(),path.end());
+    return path;
+}
+
 int main(){
     //warehouse 2
     //house 0
@@ -161,12 +205,18 @@ int main(){
     adj[48] = {{43,82},{46,70},{47,83},{49,84},{45,66},{42,85}};
     adj[49] = {{47,67},{48,84},{45,65}};
     
-    
     // floywarshall(V,adj);
     // int capacity = 269;
     vector<pair<int,int>> List = {{95,4},{4,35},{60,31},{32,5},{23,19},{72,45},{80,32},{62,29},{65,17},{49,2}};
     // SystematicPackaging(List,capacity);
-    wareHouseSelection(List,adj,wareHouses);
-
+    
+    // Dijkstra's Algo implementation
+    int srcNode;
+    vector<int> dist;
+    srcNode = wareHouseSelection(List,adj,wareHouses);
+    dist = Dijkstra(srcNode,adj);
+    for(auto i : dist){
+        cout<<" "<<i;
+    }
     return 0;
 }
