@@ -68,6 +68,7 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     // }
     return finalListOfItems;
 }
+<<<<<<< HEAD
 
 int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
     vector<vector<int>> dist = floydwarshall(V,adj);
@@ -77,14 +78,50 @@ int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],ve
     //     cout<<wareHouses[i]<<" ";
     // }
     // cout<<endl;
+=======
+int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
+    vector<vector<int>> dist = floywarshall(V,adj);
+    vector<pair<int,int>> data;
+    // First integer represent warehouse second is shortest distance..
+>>>>>>> 6fb5fd9881cf01ae00a53f48eaa97fba2b921fca
 
-    for(int i=0;i<wareHouses.size();i++){
-        for(int j=0;j<List.size();j++){
-            warehouseTohouses.push_back({wareHouses[i],dist[wareHouses[0]][List[j].second]});
-       }
+    // for(int i=0;i<wareHouses.size();i++) {
+    //     warehouseTohouses[wareHouses[i]] = 1e7;
+    // }
+    //infinity is 1e7
+    for(int i=0;i<List.size();i++) {
+        int mini = 1e7;
+        int wareHouse = 0;
+        int house = List[i].second;
+        for(int j=0;j<wareHouses.size();j++){
+            if(dist[wareHouses[j]][List[i].second] < mini){
+                mini = dist[wareHouses[j]][List[i].second]; 
+                wareHouse = wareHouses[j];
+            }
+        }
+        data.push_back({wareHouse,mini});
     }
-    
-    
+
+    // for(int i=0;i<data.size();i++){
+    //     cout<<List[i].second<<" "<<data[i].first<<" "<<data[i].second<<endl;
+    // }
+    vector<pair<int,int>> counters;
+    for(int i=0;i<wareHouses.size();i++){
+        int cnt = 0; 
+        for(int j=0;j<data.size();j++){
+            if(data[j].first == wareHouses[i]){
+                cnt++;
+            }
+        }
+        counters.push_back({cnt,wareHouses[i]});
+    }
+    int result = 0; 
+    for(int i=1;i<counters.size();i++){
+        if(counters[i].first>counters[result].first){
+            result = i;
+        }
+    }
+    return counters[result].second;
 }
 
 vector<int> Dijkstra(int src, vector<pair<int,int>> adj[]){
@@ -207,8 +244,9 @@ int main(){
     
     // floywarshall(V,adj);
     // int capacity = 269;
-    vector<pair<int,int>> List = {{95,4},{4,35},{60,31},{32,5},{23,19},{72,45},{80,32},{62,29},{65,17},{49,2}};
+    vector<pair<int,int>> List = {{95,4},{4,35},{60,31},{32,5},{23,19},{72,45},{80,32},{65,17},{49,2}};
     // SystematicPackaging(List,capacity);
+<<<<<<< HEAD
     
     // Dijkstra's Algo implementation
     int srcNode;
@@ -218,5 +256,9 @@ int main(){
     for(auto i : dist){
         cout<<" "<<i;
     }
+=======
+    cout<<wareHouseSelection(List,adj,wareHouses);
+
+>>>>>>> 6fb5fd9881cf01ae00a53f48eaa97fba2b921fca
     return 0;
 }
