@@ -68,7 +68,6 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     // }
     return finalListOfItems;
 }
-<<<<<<< HEAD
 
 int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
     vector<vector<int>> dist = floydwarshall(V,adj);
@@ -78,17 +77,12 @@ int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],ve
     //     cout<<wareHouses[i]<<" ";
     // }
     // cout<<endl;
-=======
-int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
-    vector<vector<int>> dist = floywarshall(V,adj);
-    vector<pair<int,int>> data;
-    // First integer represent warehouse second is shortest distance..
->>>>>>> 6fb5fd9881cf01ae00a53f48eaa97fba2b921fca
 
     // for(int i=0;i<wareHouses.size();i++) {
     //     warehouseTohouses[wareHouses[i]] = 1e7;
     // }
     //infinity is 1e7
+    vector<pair<int,int>> data;
     for(int i=0;i<List.size();i++) {
         int mini = 1e7;
         int wareHouse = 0;
@@ -246,7 +240,6 @@ int main(){
     // int capacity = 269;
     vector<pair<int,int>> List = {{95,4},{4,35},{60,31},{32,5},{23,19},{72,45},{80,32},{65,17},{49,2}};
     // SystematicPackaging(List,capacity);
-<<<<<<< HEAD
     
     // Dijkstra's Algo implementation
     int srcNode;
@@ -256,9 +249,5 @@ int main(){
     for(auto i : dist){
         cout<<" "<<i;
     }
-=======
-    cout<<wareHouseSelection(List,adj,wareHouses);
-
->>>>>>> 6fb5fd9881cf01ae00a53f48eaa97fba2b921fca
     return 0;
 }
