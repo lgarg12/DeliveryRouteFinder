@@ -6,7 +6,11 @@
 using namespace std;
 
 //Number of vertex or Id address in the map
-int V=50;
+const int V=50;
+vector<int> wareHouses{1,48,29,36};
+int property[V] = {0};
+vector<int> GasStation{25,17,27,38};
+vector<pair<int,int>> adj[V];
 
 //Getting Distance between every pair of vertex.....
 //Phase First Done
@@ -59,6 +63,7 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     while(capacity>=0 && i < List.size()){
         capacity-=List[i].first;
         finalListOfItems.push_back(List[i]);
+        i++;
     }
     if(capacity<0){
         finalListOfItems.pop_back();
@@ -118,14 +123,14 @@ int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],ve
     return counters[result].second;
 }
 
-vector<int> Dijkstra(int src, vector<pair<int,int>> adj[]){
+vector<int> Dijkstra(int srcNode,int lastNode, vector<pair<int,int>> adj[]){
     set<pair<int,int>> pq;
-    vector<int> dist(V,1e7), parent(V);
-    for(int i=0;i<V;i++){
+    vector<int> dist(lastNode+1,1e7), parent(lastNode+1);
+    for(int i=0;i<=lastNode;i++){
         parent[i] = i;
     }    
-    dist[src] = 0;
-    pq.insert({0,src});
+    dist[srcNode] = 0;
+    pq.insert({0,srcNode});
     while(!pq.empty()){
         auto it = *(pq.begin());
         int dis = it.first;
@@ -146,17 +151,38 @@ vector<int> Dijkstra(int src, vector<pair<int,int>> adj[]){
             }
         }
     }
-    if(dist[V-1] == 1e7)
+    if(dist[lastNode] == 1e7)
         return {-1};
     vector<int> path;
-    int node = V-1;
+    int node = lastNode;
     while(parent[node] != node){
         path.push_back(node);
         node = parent[node];
     }
-    path.push_back(src);
+    path.push_back(srcNode);
     reverse(path.begin(),path.end());
     return path;
+}
+
+void pathPrinting(vector<pair<int,int>> List){
+    vector<pair<int,int>> FinalList = SystematicPackaging(List,269);
+    int warehouse = wareHouseSelection(List,adj,wareHouses);
+    for(int i=0;i<FinalList.size();i++){
+        cout<<FinalList[i].first<<" "<<FinalList[i].second<<endl;
+    }
+    //Let weight of truck is 269
+    //After Final List 
+    int srcNode = warehouse;
+    for(int i=0;i<FinalList.size();i++){
+        vector<int> path;
+        path = Dijkstra(srcNode,FinalList[i].second,adj);
+        //Printing Path 
+        for(int i=0;i<path.size()-1;i++){
+            cout<<path[i]<<" | "<<endl;
+        }
+        srcNode = FinalList[i].second;
+        // cout<<srcNode<<endl;
+    }
 }
 
 int main(){
@@ -165,7 +191,6 @@ int main(){
     //petrol 1
     //Number of vertex
     //Houses..
-    int property[V] = {0};
     //Warehouse..
     property[1] = 2;
     property[48] = 2;
@@ -178,13 +203,10 @@ int main(){
     property[38] = 1;
 
     //wareHouseIndex
-    vector<int> wareHouses{1,48,29,36};
 
     //PetrolPump
-    vector<int> GasStation{25,17,27,38};
 
 
-    vector<pair<int,int>> adj[V];
     adj[0] = {{22,73},{43,80},{44,72}};
     adj[1] = {{2,2},{3,1},{42,8},{7,5},{44,6},{43,7},{9,4}};
     adj[2] = {{2,2},{5,9},{10,3},{8,14},{9,13}};
@@ -242,12 +264,16 @@ int main(){
     // SystematicPackaging(List,capacity);
     
     // Dijkstra's Algo implementation
-    int srcNode;
-    vector<int> dist;
-    srcNode = wareHouseSelection(List,adj,wareHouses);
-    dist = Dijkstra(srcNode,adj);
-    for(auto i : dist){
-        cout<<" "<<i;
-    }
+    // int srcNode;
+    // vector<int> dist;
+    // srcNode = wareHouseSelection(List,adj,wareHouses);
+    // dist = Dijkstra(3,25,adj);
+    // for(auto i : dist){
+    //     cout<<i<<"-> ";
+    // }
+
+    // Path Printing Function 
+    pathPrinting(List);
+
     return 0;
 }
