@@ -6,16 +6,16 @@
 #include<queue>
 using namespace std;
 
-//Number of vertex or Id address in the map
+//Global Declaration
 const int V=50;
 vector<int> wareHouses{1,48,29,36};
 int property[V] = {0};
 vector<int> GasStation{25,17,27,38};
 vector<pair<int,int>> adj[V];
 vector<vector<int>> dist(V,vector<int>(V,1e7));
-
-//Getting Distance between every pair of vertex.....
-//Phase First Done
+bool comp(pair<int,int> &a,pair<int,int> &b) {
+    return a.second < b.second;
+}
 vector<vector<int>> floydwarshall(){
     for(int i=0;i<V;i++){
         for(auto adjNode:adj[i]){
@@ -29,7 +29,7 @@ vector<vector<int>> floydwarshall(){
             }
         }
     }
- for (int k = 0; k < V; k++) {
+    for (int k = 0; k < V; k++) {
         for (int i = 0; i < V; i++) {
             for (int j = 0; j < V; j++) {
                 if (dist[i][j] > (dist[i][k] + dist[k][j])
@@ -43,19 +43,16 @@ vector<vector<int>> floydwarshall(){
 } 
 
 
-//optimize package of truck from given list of order
-//Assume all packages will delivered 
-//we are optimizing for first Go of truck..
 vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacity){
     vector<pair<int,int>> finalListOfItems;
     //First integer Represent wt of Item and second integer represent ID of that item...
-    sort(List.begin(),List.end());
+    sort(List.begin(),List.end(),comp);
     //Sort the Given List according to their wt of items
     //since we are assuming that each and every package will be deliver in one Go
     //Push the smallest wt Element first according to capacity of truck
     int i=0;
     while(capacity>=0 && i < List.size()){
-        capacity-=List[i].first;
+        capacity-=List[i].second;
         finalListOfItems.push_back(List[i]);
         i++;
     }
@@ -65,18 +62,18 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     return finalListOfItems;
 }
 
+
 int wareHouseSelection(vector<pair<int,int>> List) {
-    vector<vector<int>> dist = floydwarshall();
     vector<pair<int,int>> warehouseTohouses;
     vector<pair<int,int>> data;
     //O(n^2)
     for(int i=0;i<List.size();i++) {
         int mini = 1e7;
         int wareHouse = 0;
-        int house = List[i].second;
+        int house = List[i].first;
         for(int j=0;j<wareHouses.size();j++){
-            if(dist[wareHouses[j]][List[i].second] < mini){
-                mini = dist[wareHouses[j]][List[i].second]; 
+            if(dist[wareHouses[j]][List[i].first] < mini){
+                mini = dist[wareHouses[j]][List[i].first]; 
                 wareHouse = wareHouses[j];
             }
         }
@@ -104,11 +101,13 @@ int wareHouseSelection(vector<pair<int,int>> List) {
 }
 
 vector<int> shortestPath(int srcNode,int lastNode) {
+
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int,int>>> pq;
 
-        vector<int> dist(lastNode + 1, 1e9), parent(lastNode + 1);
-        for (int i = 0; i <= lastNode; i++)
+        vector<int> dist(V, 1e9), parent(V);
+        for (int i = 0; i <= V; i++){
             parent[i] = i;
+        }
 
         dist[srcNode] = 0;
 
@@ -149,14 +148,30 @@ vector<int> shortestPath(int srcNode,int lastNode) {
         path.push_back(srcNode);
         reverse(path.begin(), path.end());
         return path;
-    }
+}
 
-int main(){
+void PathPrinting(vector<pair<int,int>> list){
+    vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
+    int srcNode = wareHouseSelection(list);
+    vector<int> path;
+
+    for(auto it : list){
+        cout<<it.first<<" "<<it.second<<endl;
+    }
+    for(int i = 0 ; i<list.size() ; i++){
+        path = shortestPath(srcNode,list[i].first);
+        for(int j=0 ; j<path.size()-1 ; j++){
+                cout<<path[j]<<" -> ";
+        }
+        srcNode = list[i].first;
+    }
+    cout<<path[path.size()-1];
+}
+
+int main() {
     //warehouse 2
     //house 0
     //petrol 1
-    //Number of vertex
-    //Houses..
     //Warehouse..
     property[1] = 2;
     property[48] = 2;
@@ -167,11 +182,6 @@ int main(){
     property[17] = 1;
     property[27] = 1;
     property[38] = 1;
-
-    //wareHouseIndex
-
-    //PetrolPump
-
 
     adj[0] = {{22,73},{43,80},{44,72}};
     adj[1] = {{2,2},{3,1},{42,8},{7,5},{44,6},{43,7},{9,4}};
@@ -225,24 +235,17 @@ int main(){
     adj[49] = {{47,67},{48,84},{45,65}};
     
     floydwarshall();
-    // int capacity = 269;
-    vector<pair<int,int>> List = {{95,4},{4,35},{60,31},{32,5},{23,19},{72,45},{80,32},{65,17},{49,2}};
-    // SystematicPackaging(List,capacity);
-    // cout<<wareHouseSelection(List);
-    // Dijkstra's Algo implementation
-    // int srcNode;
-    // vector<int> dist;
-    // srcNode = wareHouseSelection(List,adj,wareHouses);
-    // dist = Dijkstra(3,25,adj);
-    // for(auto i : dist){
-    //     cout<<i<<"-> ";
-    // }
+    //List of Items
+    vector<pair<int,int>> List = {{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{17,65},{2,49}};
 
-    // Path Printing Function
-    vector<int> walk; 
-    walk = shortestPath(4,35);
-    for(int i=0;i<walk.size();i++){
-        cout<<walk[i]<<" -> ";
-    }
+    // vector<int> walk; 
+    PathPrinting(List);
+
+
+    // vector<pair<int,int>> FinalList;
+    // FinalList = SystematicPackaging(List,296);
+    // for(auto j:FinalList){
+    //     cout<<j.first<<" "<<j.second<<endl;
+    // }
     return 0;
 }
