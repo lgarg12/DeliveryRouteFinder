@@ -3,6 +3,7 @@
 #include<algorithm>
 #include<map>
 #include<set>
+#include<queue>
 using namespace std;
 
 //Number of vertex or Id address in the map
@@ -11,11 +12,11 @@ vector<int> wareHouses{1,48,29,36};
 int property[V] = {0};
 vector<int> GasStation{25,17,27,38};
 vector<pair<int,int>> adj[V];
+vector<vector<int>> dist(V,vector<int>(V,1e7));
 
 //Getting Distance between every pair of vertex.....
 //Phase First Done
-vector<vector<int>> floydwarshall(int V,vector<pair<int,int>> adj[]){
-    vector<vector<int>> dist(V,vector<int>(V,1e7));
+vector<vector<int>> floydwarshall(){
     for(int i=0;i<V;i++){
         for(auto adjNode:adj[i]){
             dist[i][adjNode.first] = adjNode.second;
@@ -38,17 +39,10 @@ vector<vector<int>> floydwarshall(int V,vector<pair<int,int>> adj[]){
             }
         }
     }
-    
-    // for(int i=0;i<V;i++){
-    //     for(int j=0;j<V;j++){
-    //         cout<<dist[i][j]<<" ";
-    //     }
-    //     cout<<endl;
-    // }
     return dist;
 } 
 
-//Phase second
+
 //optimize package of truck from given list of order
 //Assume all packages will delivered 
 //we are optimizing for first Go of truck..
@@ -68,26 +62,14 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     if(capacity<0){
         finalListOfItems.pop_back();
     }
-    // for(int i=0;i<finalListOfItems.size();i++){
-    //     cout<<finalListOfItems[i].first<<" "<<finalListOfItems[i].second<<endl;
-    // }
     return finalListOfItems;
 }
 
-int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],vector<int> wareHouses) {
-    vector<vector<int>> dist = floydwarshall(V,adj);
+int wareHouseSelection(vector<pair<int,int>> List) {
+    vector<vector<int>> dist = floydwarshall();
     vector<pair<int,int>> warehouseTohouses;
-    //integer first will be warehouse and integer second will be house
-    // for(int i=0;i<wareHouses.size();i++) {
-    //     cout<<wareHouses[i]<<" ";
-    // }
-    // cout<<endl;
-
-    // for(int i=0;i<wareHouses.size();i++) {
-    //     warehouseTohouses[wareHouses[i]] = 1e7;
-    // }
-    //infinity is 1e7
     vector<pair<int,int>> data;
+    //O(n^2)
     for(int i=0;i<List.size();i++) {
         int mini = 1e7;
         int wareHouse = 0;
@@ -100,10 +82,7 @@ int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],ve
         }
         data.push_back({wareHouse,mini});
     }
-
-    // for(int i=0;i<data.size();i++){
-    //     cout<<List[i].second<<" "<<data[i].first<<" "<<data[i].second<<endl;
-    // }
+    //O(n^2)
     vector<pair<int,int>> counters;
     for(int i=0;i<wareHouses.size();i++){
         int cnt = 0; 
@@ -115,6 +94,7 @@ int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],ve
         counters.push_back({cnt,wareHouses[i]});
     }
     int result = 0; 
+    //O(n)
     for(int i=1;i<counters.size();i++){
         if(counters[i].first>counters[result].first){
             result = i;
@@ -123,67 +103,53 @@ int wareHouseSelection(vector<pair<int,int>> List,vector<pair<int,int>> adj[],ve
     return counters[result].second;
 }
 
-vector<int> Dijkstra(int srcNode,int lastNode, vector<pair<int,int>> adj[]){
-    set<pair<int,int>> pq;
-    vector<int> dist(lastNode+1,1e7), parent(lastNode+1);
-    for(int i=0;i<=lastNode;i++){
-        parent[i] = i;
-    }    
-    dist[srcNode] = 0;
-    pq.insert({0,srcNode});
-    while(!pq.empty()){
-        auto it = *(pq.begin());
-        int dis = it.first;
-        int node = it.second;
-        pq.erase(it);
+vector<int> shortestPath(int srcNode,int lastNode) {
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int,int>>> pq;
 
-        for(auto i:adj[node]){
-            int edgewt = i.second;
-            int adjNode = i.first;
+        vector<int> dist(lastNode + 1, 1e9), parent(lastNode + 1);
+        for (int i = 0; i <= lastNode; i++)
+            parent[i] = i;
 
-            if(dis + edgewt < dist[adjNode]){
-                if(dist[adjNode] != 1e7)
-                    pq.erase({dist[adjNode],adjNode});
-                
-                dist[adjNode] = (dis + edgewt);
-                pq.insert({dist[adjNode],adjNode});
-                parent[adjNode] = node;
+        dist[srcNode] = 0;
+
+        pq.push({0, srcNode});
+        while (!pq.empty())
+        {
+            auto it = pq.top();
+            pq.pop();
+            int node = it.second;
+            int dis = it.first;
+
+            for (auto it : adj[node])
+            {
+                int adjNode = it.first;
+                int edW = it.second;
+
+                if (dis + edW < dist[adjNode])
+                {
+                    dist[adjNode] = dis + edW;
+                    pq.push({dis + edW, adjNode});
+
+                    parent[adjNode] = node;
+                }
             }
         }
-    }
-    if(dist[lastNode] == 1e7)
-        return {-1};
-    vector<int> path;
-    int node = lastNode;
-    while(parent[node] != node){
-        path.push_back(node);
-        node = parent[node];
-    }
-    path.push_back(srcNode);
-    reverse(path.begin(),path.end());
-    return path;
-}
 
-void pathPrinting(vector<pair<int,int>> List){
-    vector<pair<int,int>> FinalList = SystematicPackaging(List,269);
-    int warehouse = wareHouseSelection(List,adj,wareHouses);
-    for(int i=0;i<FinalList.size();i++){
-        cout<<FinalList[i].first<<" "<<FinalList[i].second<<endl;
-    }
-    //Let weight of truck is 269
-    //After Final List 
-    int srcNode = warehouse;
-    for(int i=0;i<FinalList.size();i++){
+        if (dist[lastNode] == 1e9)
+            return {-1};
+
         vector<int> path;
-        path = Dijkstra(srcNode,FinalList[i].second,adj);
-        //Printing Path 
-        for(int i=0;i<path.size()-1;i++){
-            cout<<path[i]<<" | "<<endl;
+        int node = lastNode;
+
+        while (parent[node] != node)
+        {
+            path.push_back(node);
+            node = parent[node];
         }
-        srcNode = FinalList[i].second;
-        // cout<<srcNode<<endl;
+        path.push_back(srcNode);
+        reverse(path.begin(), path.end());
+        return path;
     }
-}
 
 int main(){
     //warehouse 2
@@ -258,11 +224,11 @@ int main(){
     adj[48] = {{43,82},{46,70},{47,83},{49,84},{45,66},{42,85}};
     adj[49] = {{47,67},{48,84},{45,65}};
     
-    // floywarshall(V,adj);
+    floydwarshall();
     // int capacity = 269;
     vector<pair<int,int>> List = {{95,4},{4,35},{60,31},{32,5},{23,19},{72,45},{80,32},{65,17},{49,2}};
     // SystematicPackaging(List,capacity);
-    
+    // cout<<wareHouseSelection(List);
     // Dijkstra's Algo implementation
     // int srcNode;
     // vector<int> dist;
@@ -272,8 +238,11 @@ int main(){
     //     cout<<i<<"-> ";
     // }
 
-    // Path Printing Function 
-    pathPrinting(List);
-
+    // Path Printing Function
+    vector<int> walk; 
+    walk = shortestPath(4,35);
+    for(int i=0;i<walk.size();i++){
+        cout<<walk[i]<<" -> ";
+    }
     return 0;
 }
