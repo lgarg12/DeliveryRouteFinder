@@ -13,6 +13,7 @@ int property[V] = {0};
 vector<int> GasStation{25,17,27,38};
 vector<pair<int,int>> adj[V];
 vector<vector<int>> dist(V,vector<int>(V,1e7));
+int Tankcap = 250;
 bool comp(pair<int,int> &a,pair<int,int> &b) {
     return a.second < b.second;
 }
@@ -41,6 +42,7 @@ void floydwarshall(){
     }
     return;
 } 
+
 
 
 vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacity){
@@ -244,17 +246,40 @@ int TotalDistance(vector<pair<int,int>> list){
     return Distance;
 }
 
+int NearGasStation(int srcNode){
+    int mini = 1e9;
+    int id = -1;
+    // 25,17,27,38
+    for(int i=0;i<GasStation.size();i++){
+        if(mini > dist[srcNode][GasStation[i]]){
+            mini = dist[srcNode][GasStation[i]];
+            id = i;
+        }
+    }
+    return GasStation[id];
+}
+
 void PathPrinting(vector<pair<int,int>> list){
     long int totalDistance = 0;
     vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
     int srcNode = wareHouseSelection(list);
     vector<int> path;
-
+    int cap = Tankcap;
+    int pump;
+    totalDistance = TotalDistance(list);
     for(int i = 0 ; i<FinalList.size() ; i++){
         path = shortestPath(srcNode,FinalList[i].first);
-        totalDistance = TotalDistance(list);
         for(int j=0 ; j<path.size()-1 ; j++){
-                cout<<path[j]<<" -> ";
+                if(cap - dist[path[j]][path[j+1]] <= 0){
+                    pump = NearGasStation(path[j]);
+                    cout<<pump<<"(*) -> ";
+                    totalDistance += dist[path[j]][pump] + dist[pump][path[j+1]];
+                    cap = Tankcap;
+                }
+                else{
+                    cap = cap - dist[path[j]][path[j+1]];
+                    cout<<path[j]<<" -> ";
+                }
         }
         srcNode = FinalList[i].first;
     }
@@ -262,6 +287,31 @@ void PathPrinting(vector<pair<int,int>> list){
     cout<<endl<<"Total Distance Covered: "<<totalDistance;
 }
 
+int NumberOfRefill(vector<pair<int,int>> list,int Capacity){
+    vector<pair<int,int>> FinalList = SystematicPackaging(list,Capacity);
+    int cnt = 0;
+    int dis = Tankcap;
+    int srcNode = wareHouseSelection(list);
+    vector<int> path;
+    for(int i=0;i<FinalList.size();i++){
+        cout<<FinalList[i].first<<" "<<FinalList[i].second<<endl;
+    }
+    cout<<dis<<endl;
+    for(int i=0;i<FinalList.size();i++){
+        path = shortestPath(srcNode,FinalList[i].first);
+        for(int j=1 ; j<path.size()-1 ; j++){
+            if(dis - dist[path[j-1]][path[j]] <= 0){
+                cnt++;
+                dis = Tankcap;
+            }
+            else{
+                dis = dis - dist[path[j-1]][path[j]];
+            }
+        }
+        srcNode = FinalList[i].first;
+    }
+    return cnt;
+} 
 int main() {
     //  warehouse -> 2
     //  house -> 0
@@ -330,8 +380,8 @@ int main() {
     adj[48] = {{43,82},{46,70},{47,83},{49,84},{45,66},{42,85}};
     adj[49] = {{47,67},{48,84},{45,65}};
     
-    floydwarshall();
     //List of Items
+    floydwarshall();
 
     vector<pair<int,int>> List[2];
     List[0] = {{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{17,65},{2,49}};
@@ -441,5 +491,15 @@ int main() {
             cout<<endl<<"Invalid Input!";
             exit(0);
     }
+    // vector<int> path;
+    // path = shortestPath(35,19);
+    // int dis = 107;
+    // for(auto j:path){
+    //     cout<<j<<" ";
+    // }
+    // vector<pair<int,int>> list{{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{17,65},{2,49}};
+    // PathPrinting(list);
+    // cout<<NumberOfRefill(list,296)<<endl;
+    
     return 0;
 }

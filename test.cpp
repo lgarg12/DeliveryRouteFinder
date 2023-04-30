@@ -86,11 +86,14 @@ int main() {
     adj[48] = {{43,82},{46,70},{47,83},{49,84},{45,66},{42,85}};
     adj[49] = {{47,67},{48,84},{45,65}};
     floydwarshall();
+    int maxi = 0;
     for(int i=0;i<V;i++){
-        for(int j=0;j<V;j++){
-            cout<<dist[i][j]<<" ";
+        for(auto j:adj[i]){
+            if(maxi < j.second){
+                maxi = j.second;
+            }
         }
-        cout<<endl;
     }
+    cout<<maxi;
     return 0;
 }
