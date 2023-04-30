@@ -154,11 +154,6 @@ vector<int> shortestPath(int srcNode,int lastNode) {
 // bool comp2(vector<int> a,vector<int> b){
 //     return a[2] > b[2];
 // }
-
-
-
-
-
 // void PathPrinting(vector<pair<int,int>> list){
 //     vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
 //     int srcNode = wareHouseSelection(list);
@@ -238,15 +233,12 @@ void PathPrinting(vector<pair<int,int>> list){
     int srcNode = wareHouseSelection(list);
     vector<int> path;
 
-    for(auto it : list){
-        cout<<it.first<<" "<<it.second<<endl;
-    }
-    for(int i = 0 ; i<list.size() ; i++){
-        path = shortestPath(srcNode,list[i].first);
+    for(int i = 0 ; i<FinalList.size() ; i++){
+        path = shortestPath(srcNode,FinalList[i].first);
         for(int j=0 ; j<path.size()-1 ; j++){
                 cout<<path[j]<<" -> ";
         }
-        srcNode = list[i].first;
+        srcNode = FinalList[i].first;
     }
     cout<<path[path.size()-1];
 }
@@ -320,6 +312,7 @@ int main() {
     
     floydwarshall();
     //List of Items
+
     vector<pair<int,int>> List[2];
     List[0] = {{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{17,65},{2,49}};
     List[1] = {{44,92},{46,4},{30,43},{22,83},{31,84},{40,68},{26,92},{35,82},{8,6},{54,44},{28,32},{10,18},{27,56},{45,83},{11,25},{17,96},{15,70},{29,48},{5,14},{13,58}};
@@ -371,7 +364,7 @@ int main() {
             exit(0);
     }
 
-    // system("cls");
+    system("cls");
     int ch,wareHouse;
     cout<<endl<<"-----------------------------------------------";
     cout<<endl<<"Press 1 to select List1";
@@ -427,13 +420,6 @@ int main() {
             cout<<endl<<"Invalid Input!";
             exit(0);
     }
-    // vector<int> walk; 
-    // PathPrinting(List);
 
-    // vector<pair<int,int>> FinalList;
-    // FinalList = SystematicPackaging(List,296);
-    // for(auto j:FinalList){
-    //     cout<<j.first<<" "<<j.second<<endl;
-    // }
     return 0;
 }
