@@ -16,7 +16,7 @@ vector<vector<int>> dist(V,vector<int>(V,1e7));
 bool comp(pair<int,int> &a,pair<int,int> &b) {
     return a.second < b.second;
 }
-vector<vector<int>> floydwarshall(){
+void floydwarshall(){
     for(int i=0;i<V;i++){
         for(auto adjNode:adj[i]){
             dist[i][adjNode.first] = adjNode.second;
@@ -39,7 +39,7 @@ vector<vector<int>> floydwarshall(){
             }
         }
     }
-    return dist;
+    return;
 } 
 
 
@@ -155,10 +155,6 @@ vector<int> shortestPath(int srcNode,int lastNode) {
 //     return a[2] > b[2];
 // }
 
-
-
-
-
 // void PathPrinting(vector<pair<int,int>> list){
 //     vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
 //     int srcNode = wareHouseSelection(list);
@@ -177,7 +173,6 @@ vector<int> shortestPath(int srcNode,int lastNode) {
 //     for(int i=0;i<FinalList.size();i++){
 //         arr.push_back(FinalList[i].first);
 //     }
-
 
 //     vector<pair<int,int>> pairs;
 //     for(int i=0;i<arr.size();i++){
@@ -233,35 +228,48 @@ vector<int> shortestPath(int srcNode,int lastNode) {
 //     }
 // }
 
+int TotalDistance(vector<pair<int,int>> list){
+    long int Distance = 0;
+    vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
+    int srcNode = wareHouseSelection(list);
+    
+    for(int i = 0 ; i<FinalList.size() ; i++){
+        Distance += dist[srcNode][FinalList[i].first];
+        srcNode = FinalList[i].first;
+    }
+    return Distance;
+}
+
 void PathPrinting(vector<pair<int,int>> list){
+    long int totalDistance = 0;
     vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
     int srcNode = wareHouseSelection(list);
     vector<int> path;
 
-    for(auto it : list){
-        cout<<it.first<<" "<<it.second<<endl;
-    }
-    for(int i = 0 ; i<list.size() ; i++){
-        path = shortestPath(srcNode,list[i].first);
+    for(int i = 0 ; i<FinalList.size() ; i++){
+        path = shortestPath(srcNode,FinalList[i].first);
+        totalDistance = TotalDistance(list);
         for(int j=0 ; j<path.size()-1 ; j++){
                 cout<<path[j]<<" -> ";
         }
-        srcNode = list[i].first;
+        srcNode = FinalList[i].first;
     }
     cout<<path[path.size()-1];
+    cout<<endl<<"Total Distance Covered: "<<totalDistance;
 }
 
-
 int main() {
-    //warehouse 2
-    //house 0
-    //petrol 1
-    //Warehouse..
+    //  warehouse -> 2
+    //  house -> 0
+    //  petrol -> 1
+    
+    //Warehouses..
     property[1] = 2;
     property[48] = 2;
     property[29] = 2;
     property[36] = 2;
-    //Petrol Pump..
+    
+    //Petrol Pumps..
     property[25] = 1;
     property[17] = 1;
     property[27] = 1;
@@ -358,6 +366,7 @@ int main() {
             }while((ans == 'Y' || ans == 'y') && k<2);
             break;
         case 2:
+            Entered = true;
             cout<<endl<<"Enter the number of items to Deliver: ";
             cin>>n;
             cout<<endl<<"Enter the adderess and weights of all the items ";
@@ -427,13 +436,5 @@ int main() {
             cout<<endl<<"Invalid Input!";
             exit(0);
     }
-    // vector<int> walk; 
-    // PathPrinting(List);
-
-    // vector<pair<int,int>> FinalList;
-    // FinalList = SystematicPackaging(List,296);
-    // for(auto j:FinalList){
-    //     cout<<j.first<<" "<<j.second<<endl;
-    // }
     return 0;
 }
