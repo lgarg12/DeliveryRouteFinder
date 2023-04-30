@@ -233,10 +233,9 @@ vector<int> shortestPath(int srcNode,int lastNode) {
 //     }
 // }
 
-int TotalDistance(vector<pair<int,int>> list){
+int TotalDistance(vector<pair<int,int>> FinalList){
     long int Distance = 0;
-    vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
-    int srcNode = wareHouseSelection(list);
+    int srcNode = wareHouseSelection(FinalList);
     
     for(int i = 0 ; i<FinalList.size() ; i++){
         Distance += dist[srcNode][FinalList[i].first];
@@ -258,36 +257,36 @@ int NearGasStation(int srcNode){
     return GasStation[id];
 }
 
-int NumberOfRefill(vector<pair<int,int>> list,int Capacity){
-    vector<pair<int,int>> FinalList = SystematicPackaging(list,Capacity);
+int NumberOfRefill(vector<pair<int,int>> FinalList){
     int cnt = 0;
-    int dis = Tankcap;
-    int srcNode = wareHouseSelection(list);
+    int cap = Tankcap;
+    int srcNode = wareHouseSelection(FinalList);
     vector<int> path;
-    for(int i=0;i<FinalList.size();i++){
+    for(int i = 0 ; i<FinalList.size() ; i++){
         path = shortestPath(srcNode,FinalList[i].first);
-        for(int j=1 ; j<path.size()-1 ; j++){
-            if(dis - dist[path[j-1]][path[j]] <= 0){
-                cnt++;
-                dis = Tankcap;
-            }
-            else{
-                dis = dis - dist[path[j-1]][path[j]];
-            }
+        for(int j=0 ; j<path.size()-1 ; j++){
+                if(cap - dist[path[j]][path[j+1]] <= 0){
+                    cap = Tankcap;
+                    cnt++;
+                }
+                else{
+                    cap = cap - dist[path[j]][path[j+1]];
+                    
+                }
         }
         srcNode = FinalList[i].first;
     }
     return cnt;
 }
 
-void PathPrinting(vector<pair<int,int>> list,int capacity){
+void PathPrinting(vector<pair<int,int>> FinalList){
     long int totalDistance = 0;
-    vector<pair<int,int>> FinalList = SystematicPackaging(list,capacity);
-    int srcNode = wareHouseSelection(list);
+    int srcNode = wareHouseSelection(FinalList);
     vector<int> path;
     int cap = Tankcap;
     int pump;
-    totalDistance = TotalDistance(list);
+    int cnt = 0;
+    totalDistance = TotalDistance(FinalList);
     for(int i = 0 ; i<FinalList.size() ; i++){
         path = shortestPath(srcNode,FinalList[i].first);
         for(int j=0 ; j<path.size()-1 ; j++){
@@ -296,6 +295,7 @@ void PathPrinting(vector<pair<int,int>> list,int capacity){
                     cout<<pump<<"(*) -> ";
                     totalDistance += dist[path[j]][pump] + dist[pump][path[j+1]];
                     cap = Tankcap;
+                    cnt++;
                 }
                 else{
                     cap = cap - dist[path[j]][path[j+1]];
@@ -305,9 +305,8 @@ void PathPrinting(vector<pair<int,int>> list,int capacity){
         srcNode = FinalList[i].first;
     }
     cout<<path[path.size()-1];
-    cout<<endl<<"-----------------------------------------------"<<endl;
     cout<<endl<<"Total Distance Covered: "<<totalDistance<<endl;
-    cout<<endl<<"Number of refills required: "<<NumberOfRefill(FinalList,capacity);
+    cout<<endl<<"Number of refills required: "<<NumberOfRefill(FinalList);
 }
  
 int main() {
@@ -380,31 +379,40 @@ int main() {
     
     //List of Items
     floydwarshall();
-
+    int cap1,cap2;
     vector<pair<int,int>> List[2];
     List[0] = {{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{19,65},{2,49}};
-    List[1] = {{44,92},{46,4},{30,43},{22,83},{31,84},{40,68},{26,92},{35,82},{8,6},{54,44},{28,32},{10,18},{27,56},{45,83},{11,25},{17,96},{15,70},{29,48},{5,14},{13,58}};
+    cap1 = 269;
+    List[1] = {{39,59},{25,102},{41,90},{38,58},{10,50},{45,30},{28,25},{20,95},{0,107},{46,12}};
+    cap2 = 400;
     system("CLS");
     int cargocap;
-    // cout<<endl<<"-----------------------------------------------";
-    cout<<endl<<"Enter the capacity of the van: ";
-    // cout<<endl<<"-----------------------------------------------";
-    cin>>cargocap;
+
+    cout<<endl<<"Addresses of All WareHouses present in the map : ";
+    for(auto i : wareHouses){
+        cout<<" "<<i;
+    }
+
+    cout<<endl<<"Addresses of All Gas Stations present in the map : ";
+    for(auto j : GasStation){
+        cout<<" "<<j;
+    }
+    cout<<endl;
     int i;
     bool Entered = false;
-    cout<<endl<<"-----------------------------------------------";
-    cout<<endl<<"Press 1 to See Existing Lists ";
-    cout<<endl<<"Press 2 to Enter a new List of items ";
-    cout<<endl<<"-----------------------------------------------";
+    cout<<endl<<"-----------------------------------------------------------";
+    cout<<endl<<"\tPress 1 to See Existing Lists ";
+    cout<<endl<<"\tPress 2 to Enter a new List of items ";
+    cout<<endl<<"-----------------------------------------------------------";
     cout<<endl<<"Enter your choice : ";
     cin>>i;
     int a,b,n,k=0;
-    char ans;
+    char ans='y';
     vector<pair<int,int>> newList;
     switch(i){
         case 1:
             do{
-                cout<<endl<<"List"<<k+1<<": ";
+                cout<<endl<<"List"<<k+1<<" with cargo capacity "<<cap1<<" : ";
                 cout<<endl<<"Node  Weight"<<endl;
                 for(auto i : List[k]){
                     cout<<" "<<i.first<<"\t"<<i.second<<endl;
@@ -412,7 +420,7 @@ int main() {
                 k++;
                 cout<<endl<<"Press Y to see another list: ";
                 cin>>ans;
-                if(k>=2){
+                if(k>=2 && (ans=='y'||ans=='Y')){
                     cout<<endl<<"Oops!No more list present.."<<endl;
                     break;
                 }
@@ -420,6 +428,8 @@ int main() {
             break;
         case 2:
             Entered = true;
+            cout<<endl<<"Enter the capacity of the van: ";
+            cin>>cargocap;
             cout<<endl<<"Enter the number of items to Deliver: ";
             cin>>n;
             cout<<endl<<"Enter the adderess and weights of all the items ";
@@ -436,17 +446,17 @@ int main() {
     // system("cls");
     int ch,wareHouse;
     cout<<endl<<"-----------------------------------------------";
-    cout<<endl<<"Press 1 to select List1";
-    cout<<endl<<"Press 2 to select List2";
-    cout<<endl<<"Press 3 to select your Entered List";
-    cout<<endl<<"-----------------------------------------------"<<endl;
+    cout<<endl<<"\tPress 1 to select List1";
+    cout<<endl<<"\tPress 2 to select List2";
+    cout<<endl<<"\tPress 3 to select your Entered List";
+    cout<<endl<<"-----------------------------------------------";
     cout<<endl<<"Enter your choice: ";
     cin>>ch;
     system("cls");
     vector<pair<int,int>> FinalList;
     switch(ch){
         case 1 : 
-            FinalList = SystematicPackaging(List[0],cargocap);
+            FinalList = SystematicPackaging(List[0],cap1);
             wareHouse = wareHouseSelection(List[0]);
             cout<<endl<<"Final list of items is: ";
             cout<<endl<<"-----------------------------------------------";
@@ -456,13 +466,12 @@ int main() {
             }
             cout<<endl<<"-----------------------------------------------";
             cout<<endl<<"Van will Depart from Warehouse Node "<<wareHouse<<endl;
-            cout<<endl<<"Van will Follow the given path: ";
-            cout<<endl<<"-----------------------------------------------"<<endl;
-            PathPrinting(List[0],cargocap);
+            cout<<endl<<"Van will Follow the given path: "<<endl;
+            PathPrinting(FinalList);
             break;
         case 2 : 
             Entered = true;
-            FinalList = SystematicPackaging(List[1],cargocap);
+            FinalList = SystematicPackaging(List[1],cap2);
             wareHouse = wareHouseSelection(List[1]);
             cout<<endl<<"Final list of items is: ";
             cout<<endl<<"Node  Weight"<<endl;
@@ -470,15 +479,15 @@ int main() {
                 cout<<" "<<it.first<<"   "<<it.second<<endl;
             }
             cout<<endl<<"Van will Start from Warehouse Node "<<wareHouse;
-            cout<<endl<<endl<<"Van will Follow the given path: ";
-            cout<<endl<<"-----------------------------------------------"<<endl;
-            PathPrinting(List[1],cargocap);
+            cout<<endl<<endl<<"Van will Follow the given path: "<<endl;
+            PathPrinting(FinalList);
             break;
         case 3 : 
             if(!Entered){
                 cout<<endl<<"No List entered!"<<endl;
                 break;
             }
+            
             FinalList = SystematicPackaging(newList,cargocap);
             wareHouse = wareHouseSelection(newList);
             cout<<endl<<"Final list of items is: ";
@@ -487,9 +496,8 @@ int main() {
                 cout<<"  "<<it.first<<"   "<<it.second<<endl;
             }
             cout<<endl<<"Van will Start from Warehouse Node "<<wareHouse;
-            cout<<endl<<"Van will Follow the given path: ";
-            cout<<endl<<"-----------------------------------------------"<<endl;
-            PathPrinting(newList,cargocap);
+            cout<<endl<<"Van will Follow the given path: "<<endl;
+            PathPrinting(FinalList);
             break;
         default:
             cout<<endl<<"Invalid Input!";
