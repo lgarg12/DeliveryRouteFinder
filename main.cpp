@@ -150,6 +150,89 @@ vector<int> shortestPath(int srcNode,int lastNode) {
         return path;
 }
 
+  
+// bool comp2(vector<int> a,vector<int> b){
+//     return a[2] > b[2];
+// }
+
+
+
+
+
+// void PathPrinting(vector<pair<int,int>> list){
+//     vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
+//     int srcNode = wareHouseSelection(list);
+//     vector<int> path;
+
+//     // for(auto it : FinalList){
+//     //     cout<<it.first<<" "<<it.second<<endl;
+//     // }
+
+//     vector<int> vis(V,0);
+
+//     for(int i=0;i<FinalList.size();i++){
+//         vis[FinalList[i].first] = 1;
+//     }
+//     vector<int> arr;
+//     for(int i=0;i<FinalList.size();i++){
+//         arr.push_back(FinalList[i].first);
+//     }
+
+
+//     vector<pair<int,int>> pairs;
+//     for(int i=0;i<arr.size();i++){
+//         for(int j=0;j<arr.size();j++){
+//             if(arr[i]!=arr[j])
+//             pairs.push_back({arr[i],arr[j]});
+//         }
+//     }
+//     for(int i=0;i<arr.size();i++){
+        
+//         pairs.push_back({srcNode,arr[i]});
+//     }
+
+//     vector<vector<int>> data;
+//     for(int i=0;i<pairs.size();i++){
+//         vector<int> res(3);
+//         res[0] = pairs[i].first;
+//         res[1] = pairs[i].second;
+//         int cnt = 0;
+//         vector<int> path;
+//         path = shortestPath(res[0],res[1]);
+//         for(int i=0;i<path.size();i++){
+//             if(vis[path[i]]==1){
+//                 cnt++;
+//             }
+//         } 
+//         res[2] = cnt;
+//         data.push_back(res);
+//     }
+    
+//     sort(data.begin(),data.end(),comp2);
+//     vis[V]={0};
+//     // for(int i=0;i<data.size();i++){
+//     //     for(int j=0;j<data[i].size();j++){
+//     //         cout<<data[i][j]<<" ";
+//     //     }
+//     //     cout<<endl;
+//     // }
+    
+//     for(int i=0;i<data.size();i++){
+//         if(data[i][0]==1){
+//             continue;
+//         }
+//         vector<int> path;
+//         path = shortestPath(srcNode,data[i][0]);
+//         for(int j=0;j<path.size()-1;j++){
+//             cout<<path[j]<<"-> ";
+//             if(vis[path[j]]==0){
+//                 vis[path[j]]=1;
+//             }
+//         }
+//         srcNode = data[i][1];
+//     }
+// }
+
 void PathPrinting(vector<pair<int,int>> list){
     vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
     int srcNode = wareHouseSelection(list);
@@ -167,6 +250,7 @@ void PathPrinting(vector<pair<int,int>> list){
     }
     cout<<path[path.size()-1];
 }
+
 
 int main() {
     //warehouse 2
@@ -240,7 +324,6 @@ int main() {
 
     // vector<int> walk; 
     PathPrinting(List);
-
 
     // vector<pair<int,int>> FinalList;
     // FinalList = SystematicPackaging(List,296);
