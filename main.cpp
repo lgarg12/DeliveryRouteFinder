@@ -64,7 +64,6 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     return finalListOfItems;
 }
 
-
 int wareHouseSelection(vector<pair<int,int>> List) {
     vector<pair<int,int>> warehouseTohouses;
     vector<pair<int,int>> data;
@@ -259,9 +258,31 @@ int NearGasStation(int srcNode){
     return GasStation[id];
 }
 
-void PathPrinting(vector<pair<int,int>> list){
+int NumberOfRefill(vector<pair<int,int>> list,int Capacity){
+    vector<pair<int,int>> FinalList = SystematicPackaging(list,Capacity);
+    int cnt = 0;
+    int dis = Tankcap;
+    int srcNode = wareHouseSelection(list);
+    vector<int> path;
+    for(int i=0;i<FinalList.size();i++){
+        path = shortestPath(srcNode,FinalList[i].first);
+        for(int j=1 ; j<path.size()-1 ; j++){
+            if(dis - dist[path[j-1]][path[j]] <= 0){
+                cnt++;
+                dis = Tankcap;
+            }
+            else{
+                dis = dis - dist[path[j-1]][path[j]];
+            }
+        }
+        srcNode = FinalList[i].first;
+    }
+    return cnt;
+}
+
+void PathPrinting(vector<pair<int,int>> list,int capacity){
     long int totalDistance = 0;
-    vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
+    vector<pair<int,int>> FinalList = SystematicPackaging(list,capacity);
     int srcNode = wareHouseSelection(list);
     vector<int> path;
     int cap = Tankcap;
@@ -284,34 +305,11 @@ void PathPrinting(vector<pair<int,int>> list){
         srcNode = FinalList[i].first;
     }
     cout<<path[path.size()-1];
-    cout<<endl<<"Total Distance Covered: "<<totalDistance;
+    cout<<endl<<"-----------------------------------------------"<<endl;
+    cout<<endl<<"Total Distance Covered: "<<totalDistance<<endl;
+    cout<<endl<<"Number of refills required: "<<NumberOfRefill(FinalList,capacity);
 }
-
-int NumberOfRefill(vector<pair<int,int>> list,int Capacity){
-    vector<pair<int,int>> FinalList = SystematicPackaging(list,Capacity);
-    int cnt = 0;
-    int dis = Tankcap;
-    int srcNode = wareHouseSelection(list);
-    vector<int> path;
-    for(int i=0;i<FinalList.size();i++){
-        cout<<FinalList[i].first<<" "<<FinalList[i].second<<endl;
-    }
-    cout<<dis<<endl;
-    for(int i=0;i<FinalList.size();i++){
-        path = shortestPath(srcNode,FinalList[i].first);
-        for(int j=1 ; j<path.size()-1 ; j++){
-            if(dis - dist[path[j-1]][path[j]] <= 0){
-                cnt++;
-                dis = Tankcap;
-            }
-            else{
-                dis = dis - dist[path[j-1]][path[j]];
-            }
-        }
-        srcNode = FinalList[i].first;
-    }
-    return cnt;
-} 
+ 
 int main() {
     //  warehouse -> 2
     //  house -> 0
@@ -384,7 +382,7 @@ int main() {
     floydwarshall();
 
     vector<pair<int,int>> List[2];
-    List[0] = {{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{17,65},{2,49}};
+    List[0] = {{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{19,65},{2,49}};
     List[1] = {{44,92},{46,4},{30,43},{22,83},{31,84},{40,68},{26,92},{35,82},{8,6},{54,44},{28,32},{10,18},{27,56},{45,83},{11,25},{17,96},{15,70},{29,48},{5,14},{13,58}};
     system("CLS");
     int cargocap;
@@ -406,12 +404,12 @@ int main() {
     switch(i){
         case 1:
             do{
-                    cout<<endl<<"List"<<k+1<<": ";
-                    cout<<endl<<"Node  Weight"<<endl;
-                    for(auto i : List[k]){
-                        cout<<" "<<i.first<<"\t"<<i.second<<endl;
-                    }
-                    k++;
+                cout<<endl<<"List"<<k+1<<": ";
+                cout<<endl<<"Node  Weight"<<endl;
+                for(auto i : List[k]){
+                    cout<<" "<<i.first<<"\t"<<i.second<<endl;
+                }
+                k++;
                 cout<<endl<<"Press Y to see another list: ";
                 cin>>ans;
                 if(k>=2){
@@ -435,28 +433,32 @@ int main() {
             exit(0);
     }
 
-    system("cls");
+    // system("cls");
     int ch,wareHouse;
     cout<<endl<<"-----------------------------------------------";
     cout<<endl<<"Press 1 to select List1";
     cout<<endl<<"Press 2 to select List2";
     cout<<endl<<"Press 3 to select your Entered List";
-    cout<<endl<<"-----------------------------------------------";
+    cout<<endl<<"-----------------------------------------------"<<endl;
     cout<<endl<<"Enter your choice: ";
     cin>>ch;
+    system("cls");
     vector<pair<int,int>> FinalList;
     switch(ch){
         case 1 : 
             FinalList = SystematicPackaging(List[0],cargocap);
             wareHouse = wareHouseSelection(List[0]);
             cout<<endl<<"Final list of items is: ";
+            cout<<endl<<"-----------------------------------------------";
             cout<<endl<<"Node  Weight"<<endl;
             for(auto it : FinalList){
                 cout<<" "<<it.first<<"   "<<it.second<<endl;
             }
-            cout<<endl<<"Van will Start from Warehouse Node "<<wareHouse;
-            cout<<endl<<"Van will Follow the given path: "<<endl;
-            PathPrinting(List[0]);
+            cout<<endl<<"-----------------------------------------------";
+            cout<<endl<<"Van will Depart from Warehouse Node "<<wareHouse<<endl;
+            cout<<endl<<"Van will Follow the given path: ";
+            cout<<endl<<"-----------------------------------------------"<<endl;
+            PathPrinting(List[0],cargocap);
             break;
         case 2 : 
             Entered = true;
@@ -468,8 +470,9 @@ int main() {
                 cout<<" "<<it.first<<"   "<<it.second<<endl;
             }
             cout<<endl<<"Van will Start from Warehouse Node "<<wareHouse;
-            cout<<endl<<"Van will Follow the given path: "<<endl;
-            PathPrinting(List[1]);
+            cout<<endl<<endl<<"Van will Follow the given path: ";
+            cout<<endl<<"-----------------------------------------------"<<endl;
+            PathPrinting(List[1],cargocap);
             break;
         case 3 : 
             if(!Entered){
@@ -484,8 +487,9 @@ int main() {
                 cout<<"  "<<it.first<<"   "<<it.second<<endl;
             }
             cout<<endl<<"Van will Start from Warehouse Node "<<wareHouse;
-            cout<<endl<<"Van will Follow the given path: "<<endl;
-            PathPrinting(newList);
+            cout<<endl<<"Van will Follow the given path: ";
+            cout<<endl<<"-----------------------------------------------"<<endl;
+            PathPrinting(newList,cargocap);
             break;
         default:
             cout<<endl<<"Invalid Input!";
