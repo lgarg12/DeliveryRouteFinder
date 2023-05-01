@@ -14,15 +14,21 @@ vector<int> GasStation{25,17,27,38};
 vector<pair<int,int>> adj[V];
 vector<vector<int>> dist(V,vector<int>(V,1e7));
 int Tankcap = 250;
+
+// custom camparator function
 bool comp(pair<int,int> &a,pair<int,int> &b) {
     return a.second < b.second;
 }
-void floydwarshall(){
+void floydwarshall(){   // Time complexity => O(n^3)
+
+    // Initialization   O(n^2)
     for(int i=0;i<V;i++){
         for(auto adjNode:adj[i]){
             dist[i][adjNode.first] = adjNode.second;
         }
     }
+
+    // Self loop -> dist=0;    O(n^2)
     for(int i=0;i<V;i++){
         for(int j=0;j<V;j++){
             if(i==j){
@@ -30,6 +36,8 @@ void floydwarshall(){
             }
         }
     }
+
+    // Relaxation O(n^3)
     for (int k = 0; k < V; k++) {
         for (int i = 0; i < V; i++) {
             for (int j = 0; j < V; j++) {
@@ -44,8 +52,8 @@ void floydwarshall(){
 } 
 
 
-
-vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacity){
+// Gives the FinalList of items to be delivered using kanpsack algorithm (greedy approach)
+vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacity){ // O(n)
     vector<pair<int,int>> finalListOfItems;
     //First integer Represent wt of Item and second integer represent ID of that item...
     sort(List.begin(),List.end(),comp);
@@ -64,10 +72,11 @@ vector<pair<int,int>> SystematicPackaging(vector<pair<int,int>> List,int capacit
     return finalListOfItems;
 }
 
+// Gives the warehouse 
 int wareHouseSelection(vector<pair<int,int>> List) {
-    vector<pair<int,int>> warehouseTohouses;
     vector<pair<int,int>> data;
-    //O(n^2)
+    
+    // Calculating the Distances of all houses present in the list from all the warehouses and storing that warehouse which is closer to the house  ->  O(n^2)
     for(int i=0;i<List.size();i++) {
         int mini = 1e7;
         int wareHouse = 0;
@@ -80,7 +89,8 @@ int wareHouseSelection(vector<pair<int,int>> List) {
         }
         data.push_back({wareHouse,mini});
     }
-    //O(n^2)
+    
+    // Couting that how many times the warehouses are repeating  ->  O(n^2)
     vector<pair<int,int>> counters;
     for(int i=0;i<wareHouses.size();i++){
         int cnt = 0; 
@@ -92,7 +102,8 @@ int wareHouseSelection(vector<pair<int,int>> List) {
         counters.push_back({cnt,wareHouses[i]});
     }
     int result = 0; 
-    //O(n)
+    
+    // selecting that warehouse which is repeating maximum times  ->  O(n)
     for(int i=1;i<counters.size();i++){
         if(counters[i].first>counters[result].first){
             result = i;
@@ -101,18 +112,21 @@ int wareHouseSelection(vector<pair<int,int>> List) {
     return counters[result].second;
 }
 
+// Gives the Shortest Path between any two nodes    ->  O[n.Elog(V)]
 vector<int> shortestPath(int srcNode,int lastNode) {
 
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int,int>>> pq;
 
         vector<int> dist(V, 1e9), parent(V);
+        
+        // Initializing the parents with themseleves
         for (int i = 0; i <= V; i++){
             parent[i] = i;
         }
 
         dist[srcNode] = 0;
 
-        pq.push({0, srcNode});
+        pq.push({0, srcNode});  // {dist, Node}
         while (!pq.empty())
         {
             auto it = pq.top();
@@ -155,10 +169,6 @@ vector<int> shortestPath(int srcNode,int lastNode) {
 // bool comp2(vector<int> a,vector<int> b){
 //     return a[2] > b[2];
 // }
-
-
-
-
 
 // void PathPrinting(vector<pair<int,int>> list){
 //     vector<pair<int,int>> FinalList = SystematicPackaging(list,296);
@@ -233,6 +243,7 @@ vector<int> shortestPath(int srcNode,int lastNode) {
 //     }
 // }
 
+// Gives the total Distance travelled by the van    ->  O(n)
 int TotalDistance(vector<pair<int,int>> FinalList){
     long int Distance = 0;
     int srcNode = wareHouseSelection(FinalList);
@@ -244,6 +255,7 @@ int TotalDistance(vector<pair<int,int>> FinalList){
     return Distance;
 }
 
+// Gives the Nearest Gas Station from the Node where the Van Runs out of fuel   ->  O(n)
 int NearGasStation(int srcNode){
     int mini = 1e9;
     int id = -1;
@@ -257,6 +269,7 @@ int NearGasStation(int srcNode){
     return GasStation[id];
 }
 
+// Gives the Total number of times the van go for a tank refill ->  O(n^2)
 int NumberOfRefill(vector<pair<int,int>> FinalList){
     int cnt = 0;
     int cap = Tankcap;
@@ -279,13 +292,15 @@ int NumberOfRefill(vector<pair<int,int>> FinalList){
     return cnt;
 }
 
+
+// Prints the Final Path of the Van to deliver all the items of FinalList   ->  O(n^2)
 void PathPrinting(vector<pair<int,int>> FinalList){
     long int totalDistance = 0;
     int srcNode = wareHouseSelection(FinalList);
     vector<int> path;
     int cap = Tankcap;
     int pump;
-    int cnt = 0;
+    // int cnt = 0;
     totalDistance = TotalDistance(FinalList);
     for(int i = 0 ; i<FinalList.size() ; i++){
         path = shortestPath(srcNode,FinalList[i].first);
@@ -295,7 +310,7 @@ void PathPrinting(vector<pair<int,int>> FinalList){
                     cout<<pump<<"(*) -> ";
                     totalDistance += dist[path[j]][pump] + dist[pump][path[j+1]];
                     cap = Tankcap;
-                    cnt++;
+                    // cnt++;
                 }
                 else{
                     cap = cap - dist[path[j]][path[j+1]];
@@ -304,9 +319,9 @@ void PathPrinting(vector<pair<int,int>> FinalList){
         }
         srcNode = FinalList[i].first;
     }
-    cout<<path[path.size()-1];
-    cout<<endl<<"Total Distance Covered: "<<totalDistance<<endl;
-    cout<<endl<<"Number of refills required: "<<NumberOfRefill(FinalList);
+    cout<<path[path.size()-1]<<endl;
+    cout<<endl<<"Total Distance Covered in this Path: "<<totalDistance<<endl;
+    cout<<endl<<"Number of refills required to cover the Path: "<<NumberOfRefill(FinalList);
 }
  
 int main() {
@@ -326,16 +341,16 @@ int main() {
     property[27] = 1;
     property[38] = 1;
 
-    adj[0] = {{22,73},{43,80},{44,72}};
-    adj[1] = {{2,2},{3,1},{42,8},{7,5},{44,6},{43,7},{9,4}};
-    adj[2] = {{2,2},{5,9},{10,3},{8,14},{9,13}};
-    adj[3] = {{4,11},{5,10},{1,1}};
-    adj[4] = {{5,12},{3,11},{34,55},{38,54}};
-    adj[5] = {{3,10},{4,12},{38,53},{2,9},{10,50},{6,51}};
-    adj[6] = {{37,63},{5,51},{11,49},{38,52}};
-    adj[7] = {{1,5},{9,18},{44,107}};
-    adj[8] = {{2,14},{9,15},{21,16},{17,74},{10,79}};
-    adj[9] = {{2,13},{1,4},{7,18},{23,19},{21,17},{8,15}};
+    adj[0]  = {{22,73},{43,80},{44,72}};
+    adj[1]  = {{2,2},{3,1},{42,8},{7,5},{44,6},{43,7},{9,4}};
+    adj[2]  = {{2,2},{5,9},{10,3},{8,14},{9,13}};
+    adj[3]  = {{4,11},{5,10},{1,1}};
+    adj[4]  = {{5,12},{3,11},{34,55},{38,54}};
+    adj[5]  = {{3,10},{4,12},{38,53},{2,9},{10,50},{6,51}};
+    adj[6]  = {{37,63},{5,51},{11,49},{38,52}};
+    adj[7]  = {{1,5},{9,18},{44,107}};
+    adj[8]  = {{2,14},{9,15},{21,16},{17,74},{10,79}};
+    adj[9]  = {{2,13},{1,4},{7,18},{23,19},{21,17},{8,15}};
     adj[10] = {{2,3},{8,79},{5,50},{11,47},{15,30},{8,79}};
     adj[11] = {{10,47},{6,49},{12,48},{28,94}};
     adj[12] = {{11,48},{28,43},{24,44},{25,97}};
@@ -346,21 +361,21 @@ int main() {
     adj[17] = {{16,28},{18,78},{15,29},{8,74},{19,75}};
     adj[18] = {{16,27},{19,26},{17,78},{20,25}};
     adj[19] = {{18,26},{17,75},{20,24},{21,23},{22,76}};
-    adj[20] = {{18, 25}, {22, 22}, {19, 24}};
-    adj[21] = {{9, 17}, {23, 20}, {22, 77}, {8, 16}, {19, 23}};
-    adj[22] = {{19, 76}, {20, 22}, {23, 21}, {21, 77}, {0, 73}};
-    adj[23] = {{21, 20}, {22, 21}, {44, 81}, {9, 19}};
-    adj[24] = {{25, 45}, {26, 41}, {12, 44}, {29, 42}};
-    adj[25] = {{12, 97}, {39, 46}, {40, 102}, {24, 45}};
-    adj[26] = {{27, 40}, {24, 41}, {30, 98}};
-    adj[27] = {{30, 39}, {26, 40}};
-    adj[28] = {{29, 95}, {12, 43}, {11, 94}, {13, 31}};
-    adj[29] = {{30, 96}, {32, 38}, {14, 101}, {28, 95}, {24,42}};
-    adj[30] = {{29, 96}, {27, 39}, {31, 99}, {26, 98}};
-    adj[31] = {{30, 99}, {33, 36}, {32, 37}};
-    adj[32] = {{31, 37}, {33, 35}, {29, 38}, {14, 34}, {16, 92}, {13, 93}};
-    adj[33] = {{31, 36}, {32, 35}, {16, 100}};
-    adj[34] = {{38, 56}, {4, 55}, {45, 87}};
+    adj[20] = {{18, 25},{22, 22},{19, 24}};
+    adj[21] = {{9, 17},{23, 20},{22, 77},{8, 16},{19, 23}};
+    adj[22] = {{19, 76},{20, 22},{23, 21},{21, 77},{0, 73}};
+    adj[23] = {{21, 20},{22, 21},{44, 81},{9, 19}};
+    adj[24] = {{25, 45},{26, 41},{12, 44},{29, 42}};
+    adj[25] = {{12, 97},{39, 46},{40, 102},{24, 45}};
+    adj[26] = {{27, 40},{24, 41},{30, 98}};
+    adj[27] = {{30, 39},{26, 40}};
+    adj[28] = {{29, 95},{12, 43},{11, 94},{13, 31}};
+    adj[29] = {{30, 96},{32, 38},{14, 101},{28, 95},{24,42}};
+    adj[30] = {{29, 96},{27, 39},{31, 99},{26, 98}};
+    adj[31] = {{30, 99},{33, 36},{32, 37}};
+    adj[32] = {{31, 37},{33, 35},{29, 38},{14, 34},{16, 92},{13, 93}};
+    adj[33] = {{31, 36},{32, 35},{16, 100}};
+    adj[34] = {{38, 56},{4, 55},{45, 87}};
     adj[35] = {{36,58},{37,61},{39,59},{41,89}};
     adj[36] = {{35,58},{39,57},{40,91}};
     adj[37] = {{35,61},{39,60},{38,62},{6,63}};
@@ -379,12 +394,12 @@ int main() {
     
     //List of Items
     floydwarshall();
-    int cap1,cap2;
+    int cap[2];
     vector<pair<int,int>> List[2];
     List[0] = {{4,95},{35,4},{31,60},{5,32},{19,23},{45,72},{32,80},{19,65},{2,49}};
-    cap1 = 269;
+    cap[0] = 269;
     List[1] = {{39,59},{25,102},{41,90},{38,58},{10,50},{45,30},{28,25},{20,95},{0,107},{46,12}};
-    cap2 = 400;
+    cap[1] = 400;
     system("CLS");
     int cargocap;
 
@@ -412,10 +427,10 @@ int main() {
     switch(i){
         case 1:
             do{
-                cout<<endl<<"List"<<k+1<<" with cargo capacity "<<cap1<<" : ";
-                cout<<endl<<"Node  Weight"<<endl;
+                cout<<endl<<"List"<<k+1<<" with cargo capacity "<<cap[k]<<" : ";
+                cout<<endl<<"House No.\tWeight"<<endl;
                 for(auto i : List[k]){
-                    cout<<" "<<i.first<<"\t"<<i.second<<endl;
+                    cout<<" "<<i.first<<"\t\t"<<i.second<<endl;
                 }
                 k++;
                 cout<<endl<<"Press Y to see another list: ";
@@ -456,13 +471,13 @@ int main() {
     vector<pair<int,int>> FinalList;
     switch(ch){
         case 1 : 
-            FinalList = SystematicPackaging(List[0],cap1);
+            FinalList = SystematicPackaging(List[0],cap[0]);
             wareHouse = wareHouseSelection(List[0]);
             cout<<endl<<"Final list of items is: ";
             cout<<endl<<"-----------------------------------------------";
-            cout<<endl<<"Node  Weight"<<endl;
+            cout<<endl<<"House No.\tWeight"<<endl;
             for(auto it : FinalList){
-                cout<<" "<<it.first<<"   "<<it.second<<endl;
+                cout<<" "<<it.first<<"\t\t"<<it.second<<endl;
             }
             cout<<endl<<"-----------------------------------------------";
             cout<<endl<<"Van will Depart from Warehouse Node "<<wareHouse<<endl;
@@ -471,12 +486,12 @@ int main() {
             break;
         case 2 : 
             Entered = true;
-            FinalList = SystematicPackaging(List[1],cap2);
+            FinalList = SystematicPackaging(List[1],cap[1]);
             wareHouse = wareHouseSelection(List[1]);
             cout<<endl<<"Final list of items is: ";
-            cout<<endl<<"Node  Weight"<<endl;
+            cout<<endl<<"House No.\tWeight"<<endl;
             for(auto it : FinalList){
-                cout<<" "<<it.first<<"   "<<it.second<<endl;
+                cout<<" "<<it.first<<"\t\t"<<it.second<<endl;
             }
             cout<<endl<<"Van will Start from Warehouse Node "<<wareHouse;
             cout<<endl<<endl<<"Van will Follow the given path: "<<endl;
@@ -491,9 +506,9 @@ int main() {
             FinalList = SystematicPackaging(newList,cargocap);
             wareHouse = wareHouseSelection(newList);
             cout<<endl<<"Final list of items is: ";
-            cout<<endl<<"Node  Weight"<<endl;
+            cout<<endl<<"House No.\tWeight"<<endl;
             for(auto it : FinalList){
-                cout<<"  "<<it.first<<"   "<<it.second<<endl;
+                cout<<"  "<<it.first<<"\t\t"<<it.second<<endl;
             }
             cout<<endl<<"Van will Start from Warehouse Node "<<wareHouse;
             cout<<endl<<"Van will Follow the given path: "<<endl;
